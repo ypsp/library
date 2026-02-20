@@ -28,12 +28,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Copy assets to dist
-        run: |
-          cp sw.js dist/
-          cp manifest.webmanifest dist/
-          cp *.png dist/ 2>/dev/null || true
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
