@@ -1,64 +1,54 @@
-const CACHE_NAME = 'library-calendar-v2';
-const ASSETS = [
-    '/',
-    '/index.html',
-    '/app.js',
-    '/manifest.webmanifest'
-];
+const CACHE_NAME = 'library-calendar-v3';
 
-// Google Fonts names
-const FONT_CACHE = 'google-fonts';
+// Static assets that we know exist and want to cache immediately
+const PRE_CACHE_ASSETS = [
+    './',
+    'index.html'
+];
 
 self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS);
+            return cache.addAll(PRE_CACHE_ASSETS);
         })
     );
 });
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(self.clients.claim());
-    // Clean up old caches
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
-                keys.filter(key => key !== CACHE_NAME && key !== FONT_CACHE)
-                    .map(key => caches.delete(key))
+                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
             );
         })
     );
 });
 
 self.addEventListener('fetch', (event) => {
-    // For navigation requests, always try the network first but fallback to index.html if offline
-    if (event.request.mode === 'navigate') {
-        event.respondWith(
-            fetch(event.request).catch(() => caches.match('/index.html'))
-        );
-        return;
-    }
+    const url = new URL(event.request.url);
 
-    // Special handling for Google Fonts
-    if (event.request.url.includes('fonts.googleapis.com') || event.request.url.includes('fonts.gstatic.com')) {
-        event.respondWith(
-            caches.open(FONT_CACHE).then((cache) => {
-                return cache.match(event.request).then((response) => {
-                    return response || fetch(event.request).then((networkResponse) => {
-                        cache.put(event.request, networkResponse.clone());
-                        return networkResponse;
-                    });
-                });
-            })
-        );
-        return;
-    }
+    // Skip non-GET requests and browser extensions
+    if (event.request.method !== 'GET' || !url.protocol.startsWith('http')) return;
 
-    // Default Cache-First strategy for static assets
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.match(event.request).then((cachedResponse) => {
+                const fetchPromise = fetch(event.request).then((networkResponse) => {
+                    // Update cache for successful responses
+                    if (networkResponse.ok) {
+                        cache.put(event.request, networkResponse.clone());
+                    }
+                    return networkResponse;
+                }).catch(() => {
+                    // If network fails and no cache, return a fallback if needed
+                    return cachedResponse;
+                });
+
+                // Return cached response immediately if available, otherwise wait for network
+                return cachedResponse || fetchPromise;
+            });
         })
     );
 });
