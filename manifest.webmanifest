@@ -2,7 +2,7 @@
     "name": "図書館カレンダー",
     "short_name": "図書館",
     "description": "加賀・能美・坂井・福井の図書館開館状況をリアルタイムで確認",
-    "start_url": "/",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#6366f1",
