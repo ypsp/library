@@ -1,0 +1,254 @@
+import './style.css';
+
+const FY2025 = {
+    central: { special_closed: ['2025-09-25', '2025-09-26', '2025-09-27', '2025-09-28', '2025-09-29', '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03', '2025-10-04', '2025-10-05', '2025-10-06', '2025-10-07', '2026-01-04', '2026-01-21'] },
+    yamanaka: { special_closed: ['2025-09-02', '2025-09-03', '2025-09-04', '2025-09-05', '2025-09-06', '2025-09-07', '2025-09-08', '2025-09-09', '2026-01-04', '2026-01-21', '2026-02-18', '2025-05-21', '2025-06-18', '2025-07-16'] },
+    neagari: { special_closed: ['2026-03-14', '2026-03-15'] },
+    harue: {},
+    fukui_pref: {}
+};
+
+const FY2026 = {
+    central: { special_closed: ['2027-01-05', '2027-02-04', '2027-02-05', '2027-02-06', '2027-02-07', '2027-02-08', '2027-02-09', '2027-02-10', '2027-02-11', '2027-02-12', '2027-02-13', '2027-02-14', '2027-02-15', '2027-02-16'], third_tues: ['2026-05-19', '2026-06-16', '2026-07-14', '2026-10-20', '2026-12-15'] },
+    yamanaka: { special_closed: ['2027-01-04', '2027-01-26', '2027-01-27', '2027-01-28', '2027-01-29', '2027-01-30', '2027-01-31', '2027-02-01', '2027-02-02'], third_tues: ['2026-05-19', '2026-06-16', '2026-07-14', '2026-10-20', '2026-12-15'] },
+    neagari: { special_closed: ['2027-03-13', '2027-03-14'] },
+    harue: {},
+    fukui_pref: {}
+};
+
+const LIBRARIES = [
+    { name: '中央図書館 (加賀)', id: 'central', hours: { weekday: '9:00 - 19:00', weekend: '9:00 - 18:00' }, rules: { weekly_closed: [1], holiday_open: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
+    { name: '山中図書館 (加賀)', id: 'yamanaka', hours: { weekday: '9:00 - 18:00', weekend: '9:00 - 18:00' }, rules: { weekly_closed: [5], holiday_open: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
+    { name: '根上図書館 (能美)', id: 'neagari', hours: { weekday: '9:30 - 19:00', weekend: '9:30 - 17:00' }, rules: { weekly_closed: [2], nth_friday: 2, holiday_open: false, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
+    { name: '春江図書館 (坂井)', id: 'harue', hours: { weekday: '9:30 - 18:30', weekend: '9:30 - 18:30' }, rules: { weekly_closed: [1], nth_thu: 1, holiday_shift: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03', '01-04'] } },
+    {
+        name: '福井県立図書館',
+        id: 'fukui_pref',
+        hours: { weekday: '9:00 - 19:00', weekend: '9:00 - 18:00' },
+        rules: {
+            weekly_closed: [1],
+            nth_thu: 4,
+            holiday_shift: true,
+            holiday_next_day_closed: true,
+            new_year_closed: ['12-28', '12-29', '12-30', '12-31', '01-01', '01-02', '01-03', '01-04']
+        }
+    }
+];
+
+class App {
+    constructor() {
+        this.selectedDate = new Date();
+        this.init();
+    }
+
+    init() {
+        this.renderQuickLinks();
+        this.updateView();
+
+        const input = document.getElementById('date-input-hidden');
+        input.addEventListener('change', (e) => {
+            if (e.target.value) {
+                this.selectedDate = new Date(e.target.value);
+                this.updateView();
+            }
+        });
+    }
+
+    getNthDayOfMonth(date) {
+        return Math.ceil(date.getDate() / 7);
+    }
+
+    isHoliday(date) {
+        // Japanese Holidays for 2025-2027
+        const holidays = [
+            '2025-01-01', '2025-01-13', '2025-02-11', '2025-02-23', '2025-02-24', '2025-03-20', '2025-04-29', '2025-05-03', '2025-05-04', '2025-05-05', '2025-05-06', '2025-07-21', '2025-08-11', '2025-09-15', '2025-09-22', '2025-09-23', '2025-10-13', '2025-11-03', '2025-11-23', '2025-11-24',
+            '2026-01-01', '2026-01-12', '2026-02-11', '2026-02-23', '2026-03-20', '2026-04-29', '2026-05-03', '2026-05-04', '2026-05-05', '2026-05-06', '2026-07-20', '2026-08-11', '2026-09-21', '2026-09-22', '2026-09-23', '2026-10-12', '2026-11-03', '2026-11-23',
+            '2027-01-01', '2027-01-11', '2027-02-11', '2027-02-23'
+        ];
+        const dateStr = date.toISOString().split('T')[0];
+        return holidays.includes(dateStr);
+    }
+
+    getLibraryStatus(library, date) {
+        const dateStr = date.toISOString().split('T')[0];
+        const monthDay = dateStr.substring(5);
+        const dayOfWeek = date.getDay();
+        const holiday = this.isHoliday(date);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+
+        // 1. New Year
+        if (library.rules.new_year_closed.includes(monthDay)) return 'closed';
+
+        // 2. Fiscal Year specific rules (Maintenance, etc.)
+        const isFY2025 = (year === 2025 && month >= 4) || (year === 2026 && month <= 3);
+        const fiscalRules = isFY2025 ? FY2025[library.id] : FY2026[library.id];
+
+        if (fiscalRules) {
+            if (fiscalRules.special_closed && fiscalRules.special_closed.includes(dateStr)) return 'closed';
+            if (fiscalRules.third_wed && fiscalRules.third_wed.includes(dateStr)) return 'closed';
+            if (fiscalRules.third_tues && fiscalRules.third_tues.includes(dateStr)) return 'closed';
+        }
+
+        // 3. Holiday Shift Rule (Sakai / Fukui Pref Style)
+        if (library.rules.holiday_shift) {
+            // Monday rule (open if holiday, closed otherwise)
+            if (dayOfWeek === 1) {
+                if (holiday) return 'open';
+                return 'closed';
+            }
+            // Tuesday rule (Shifted Monday - closed if previous day was holiday)
+            if (dayOfWeek === 2) {
+                const prevDay = new Date(date);
+                prevDay.setDate(date.getDate() - 1);
+                if (this.isHoliday(prevDay)) return 'closed';
+            }
+            // Sakai's 1st Thursday rule (handled here because it's part of holiday_shift)
+            if (library.id !== 'fukui_pref' && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu) {
+                return holiday ? 'open' : 'closed';
+            }
+            // Sakai's Following Thursday rule (Shifted 1st Thu)
+            if (library.id !== 'fukui_pref' && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu + 1) {
+                const prevThu = new Date(date);
+                prevThu.setDate(date.getDate() - 7);
+                if (this.isHoliday(prevThu)) return 'closed';
+            }
+        }
+
+        // 4. Fukui Pref Specific Rules: Holiday Next Day & 4th Thu
+        if (library.id === 'fukui_pref') {
+            // Holiday Next Day (Closed if prev day was holiday, unless Sat/Sun)
+            if (library.rules.holiday_next_day_closed && dayOfWeek !== 0 && dayOfWeek !== 6) {
+                const prevDay = new Date(date);
+                prevDay.setDate(date.getDate() - 1);
+                if (this.isHoliday(prevDay)) return 'closed';
+            }
+            // 4th Thursday
+            if (dayOfWeek === 4 && this.getNthDayOfMonth(date) === 4) return 'closed';
+        }
+
+        // 5. Weekly Closed (Only if not handled by holiday_shift)
+        if (!library.rules.holiday_shift && library.rules.weekly_closed && library.rules.weekly_closed.includes(dayOfWeek)) {
+            if (!library.rules.holiday_open || !holiday) return 'closed';
+        }
+
+        // 6. Nth Day rule (General) - for nth_thu (if not handled by holiday_shift)
+        if (library.rules.nth_thu && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu) {
+            if (!library.rules.holiday_shift) return 'closed';
+        }
+
+        // 7. Nth Friday (Nomi Style)
+        if (dayOfWeek === 5 && library.rules.nth_friday === this.getNthDayOfMonth(date)) {
+            if (!library.rules.holiday_open || !holiday) return 'closed';
+        }
+
+        return 'open';
+    }
+
+    renderQuickLinks() {
+        const container = document.getElementById('quick-links');
+        const days = [
+            { label: '今日', offset: 0 },
+            { label: '明日', offset: 1 },
+            { label: '明後日', offset: 2 }
+        ];
+
+        container.innerHTML = days.map(day => {
+            const date = new Date();
+            date.setDate(date.getDate() + day.offset);
+            const isActive = this.selectedDate.toDateString() === date.toDateString();
+            return `
+                <div class="date-btn ${isActive ? 'active' : ''}" data-offset="${day.offset}">
+                    <span class="day-label">${day.label}</span>
+                    <span class="date-label">${date.getMonth() + 1}/${date.getDate()}</span>
+                </div>
+            `;
+        }).join('');
+
+        container.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const offset = parseInt(btn.dataset.offset);
+                const date = new Date();
+                date.setDate(date.getDate() + offset);
+                this.selectedDate = date;
+                this.updateView();
+            });
+        });
+    }
+
+    updateView() {
+        const display = document.getElementById('selected-date-display');
+        const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+        display.textContent = this.selectedDate.toLocaleDateString('ja-JP', options);
+
+        const list = document.getElementById('library-list');
+        list.innerHTML = '';
+
+        const now = new Date();
+        const isToday = this.selectedDate.toDateString() === now.toDateString();
+
+        LIBRARIES.forEach(lib => {
+            const statusType = this.getLibraryStatus(lib, this.selectedDate);
+            const isWeekend = this.selectedDate.getDay() === 0 || this.selectedDate.getDay() === 6 || this.isHoliday(this.selectedDate);
+            const hoursStr = isWeekend ? lib.hours.weekend : lib.hours.weekday;
+
+            let statusText = '';
+            let statusClass = '';
+
+            if (statusType === 'open') {
+                if (isToday) {
+                    // Check current time
+                    const [start, end] = hoursStr.split(' - ').map(t => {
+                        const [h, m] = t.split(':').map(Number);
+                        const d = new Date(now);
+                        d.setHours(h, m, 0, 0);
+                        return d;
+                    });
+
+                    if (now >= start && now < end) {
+                        statusText = '開館中';
+                        statusClass = 'status-open';
+                    } else if (now < start) {
+                        statusText = '開館前';
+                        statusClass = 'status-waiting';
+                    } else {
+                        statusText = '閉館';
+                        statusClass = 'status-closed';
+                    }
+                } else {
+                    statusText = '開館日';
+                    statusClass = 'status-open';
+                }
+            } else {
+                statusText = '休館日';
+                statusClass = 'status-closed';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'library-card';
+            card.innerHTML = `
+                <div class="library-info">
+                    <h2>${lib.name}</h2>
+                    <div class="library-hours">${statusType === 'open' ? hoursStr : '本日は休館です'}</div>
+                </div>
+                <div class="status-badge ${statusClass}">
+                    ${statusText}
+                </div>
+            `;
+            list.appendChild(card);
+        });
+
+        this.renderQuickLinks();
+    }
+}
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW Registered'))
+            .catch(err => console.log('SW Failed', err));
+    });
+}
+
+new App();
