@@ -4,8 +4,9 @@ const FY2025 = {
     central: { special_closed: ['2025-09-25', '2025-09-26', '2025-09-27', '2025-09-28', '2025-09-29', '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03', '2025-10-04', '2025-10-05', '2025-10-06', '2025-10-07', '2026-01-04', '2026-01-21'] },
     yamanaka: { special_closed: ['2025-09-02', '2025-09-03', '2025-09-04', '2025-09-05', '2025-09-06', '2025-09-07', '2025-09-08', '2025-09-09', '2026-01-04', '2026-01-21', '2026-02-18', '2025-05-21', '2025-06-18', '2025-07-16'] },
     neagari: { special_closed: ['2026-03-14', '2026-03-15'] },
-    harue: {},
-    fukui_pref: {}
+    harue: { special_closed: ['2026-03-21'] },
+    fukui_pref: {},
+    awara: { special_closed: ['2026-02-24', '2026-02-25', '2026-02-26', '2026-02-27'] }
 };
 
 const FY2026 = {
@@ -13,17 +14,22 @@ const FY2026 = {
     yamanaka: { special_closed: ['2027-01-04', '2027-01-26', '2027-01-27', '2027-01-28', '2027-01-29', '2027-01-30', '2027-01-31', '2027-02-01', '2027-02-02'], third_tues: ['2026-05-19', '2026-06-16', '2026-07-14', '2026-10-20', '2026-12-15'] },
     neagari: { special_closed: ['2027-03-13', '2027-03-14'] },
     harue: {},
-    fukui_pref: {}
+    fukui_pref: {
+        special_closed: ['2026-04-14', '2026-04-15', '2026-04-16', '2026-04-17'],
+        special_open: ['2026-04-23']
+    },
+    awara: {}
 };
 
 const LIBRARIES = [
-    { name: '中央図書館 (加賀)', id: 'central', hours: { weekday: '9:00 - 19:00', weekend: '9:00 - 18:00' }, rules: { weekly_closed: [1], holiday_open: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
-    { name: '山中図書館 (加賀)', id: 'yamanaka', hours: { weekday: '9:00 - 18:00', weekend: '9:00 - 18:00' }, rules: { weekly_closed: [5], holiday_open: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
-    { name: '根上図書館 (能美)', id: 'neagari', hours: { weekday: '9:30 - 19:00', weekend: '9:30 - 17:00' }, rules: { weekly_closed: [2], nth_friday: 2, holiday_open: false, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
-    { name: '春江図書館 (坂井)', id: 'harue', hours: { weekday: '9:30 - 18:30', weekend: '9:30 - 18:30' }, rules: { weekly_closed: [1], nth_thu: 1, holiday_shift: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03', '01-04'] } },
+    { name: '中央図書館 (加賀)', id: 'central', url: 'https://www.kagalib.jp/00_calendar/calendar.pdf', hours: { weekday: '9:00 - 19:00', weekend: '9:00 - 18:00' }, rules: { weekly_closed: [1], holiday_open: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
+    { name: '山中図書館 (加賀)', id: 'yamanaka', url: 'https://www.kagalib.jp/00_calendar/calendar.pdf', hours: { weekday: '9:00 - 18:00', weekend: '9:00 - 18:00' }, rules: { weekly_closed: [5], holiday_open: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
+    { name: '根上図書館 (能美)', id: 'neagari', url: 'https://www.city.nomi.ishikawa.jp/www/genre/1000100000285/index.html', hours: { weekday: '9:30 - 19:00', weekend: '9:30 - 17:00' }, rules: { weekly_closed: [2], nth_friday: 2, holiday_open: false, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03'] } },
+    { name: '春江図書館 (坂井)', id: 'harue', url: 'https://lib.city.sakai.fukui.jp/', hours: { weekday: '9:30 - 18:30', weekend: '9:30 - 18:30' }, rules: { weekly_closed: [1], nth_thu: 1, holiday_shift: true, new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03', '01-04'] } },
     {
         name: '福井県立図書館',
         id: 'fukui_pref',
+        url: 'https://www.library-archives.pref.fukui.lg.jp/tosyo/contents/calendar/index.html',
         hours: { weekday: '9:00 - 19:00', weekend: '9:00 - 18:00' },
         rules: {
             weekly_closed: [1],
@@ -31,6 +37,18 @@ const LIBRARIES = [
             holiday_shift: true,
             holiday_next_day_closed: true,
             new_year_closed: ['12-28', '12-29', '12-30', '12-31', '01-01', '01-02', '01-03', '01-04']
+        }
+    },
+    {
+        name: '金津図書館 (あわら)',
+        id: 'awara',
+        url: 'https://lib.city.awara.lg.jp/',
+        hours: { weekday: '9:30 - 18:00', weekend: '9:30 - 18:00' },
+        rules: {
+            weekly_closed: [1],
+            nth_thu: 4,
+            holiday_shift: true,
+            new_year_closed: ['12-29', '12-30', '12-31', '01-01', '01-02', '01-03']
         }
     }
 ];
@@ -85,6 +103,7 @@ class App {
         const fiscalRules = isFY2025 ? FY2025[library.id] : FY2026[library.id];
 
         if (fiscalRules) {
+            if (fiscalRules.special_open && fiscalRules.special_open.includes(dateStr)) return 'open';
             if (fiscalRules.special_closed && fiscalRules.special_closed.includes(dateStr)) return 'closed';
             if (fiscalRules.third_wed && fiscalRules.third_wed.includes(dateStr)) return 'closed';
             if (fiscalRules.third_tues && fiscalRules.third_tues.includes(dateStr)) return 'closed';
@@ -101,17 +120,32 @@ class App {
             if (dayOfWeek === 2) {
                 const prevDay = new Date(date);
                 prevDay.setDate(date.getDate() - 1);
-                if (this.isHoliday(prevDay)) return 'closed';
+                if (this.isHoliday(prevDay) && !holiday) return 'closed';
             }
-            // Sakai's 1st Thursday rule (handled here because it's part of holiday_shift)
-            if (library.id !== 'fukui_pref' && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu) {
+
+            // Awara's 4th Thursday shift (to Friday)
+            if (library.id === 'awara') {
+                if (dayOfWeek === 4 && this.getNthDayOfMonth(date) === 4) {
+                    return holiday ? 'open' : 'closed';
+                }
+                if (dayOfWeek === 5) {
+                    const prevDay = new Date(date);
+                    prevDay.setDate(date.getDate() - 1);
+                    if (this.isHoliday(prevDay) && this.getNthDayOfMonth(prevDay) === 4 && !holiday) {
+                        return 'closed';
+                    }
+                }
+            }
+
+            // Sakai's 1st Thursday rule (Shifted to next week's Thursday)
+            if (library.id !== 'fukui_pref' && library.id !== 'awara' && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu) {
                 return holiday ? 'open' : 'closed';
             }
             // Sakai's Following Thursday rule (Shifted 1st Thu)
-            if (library.id !== 'fukui_pref' && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu + 1) {
+            if (library.id !== 'fukui_pref' && library.id !== 'awara' && dayOfWeek === 4 && this.getNthDayOfMonth(date) === library.rules.nth_thu + 1) {
                 const prevThu = new Date(date);
                 prevThu.setDate(date.getDate() - 7);
-                if (this.isHoliday(prevThu)) return 'closed';
+                if (this.isHoliday(prevThu) && !holiday) return 'closed';
             }
         }
 
@@ -124,7 +158,7 @@ class App {
                 if (this.isHoliday(prevDay)) return 'closed';
             }
             // 4th Thursday
-            if (dayOfWeek === 4 && this.getNthDayOfMonth(date) === 4) return 'closed';
+            if (dayOfWeek === 4 && this.getNthDayOfMonth(date) === 4 && !holiday) return 'closed';
         }
 
         // 5. Weekly Closed (Only if not handled by holiday_shift)
@@ -224,8 +258,11 @@ class App {
                 statusClass = 'status-closed';
             }
 
-            const card = document.createElement('div');
+            const card = document.createElement('a');
             card.className = 'library-card';
+            card.href = lib.url;
+            card.target = '_blank';
+            card.rel = 'noopener noreferrer';
             card.innerHTML = `
                 <div class="library-info">
                     <h2>${lib.name}</h2>

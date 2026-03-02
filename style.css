@@ -99,14 +99,21 @@ h1 {
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 0 18px;
-    /* Adjusted padding for fixed height */
     height: 64px;
-    /* Fixed height for uniformity */
     backdrop-filter: blur(12px);
-    transition: transform 0.2s ease;
+    transition: all 0.2s ease;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.library-card:hover, .library-card:active {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+    background: rgba(30, 41, 59, 0.9);
 }
 
 .library-info {
