@@ -3,7 +3,9 @@ const CACHE_NAME = 'library-calendar-v3';
 // Static assets that we know exist and want to cache immediately
 const PRE_CACHE_ASSETS = [
     './',
-    'index.html'
+    'index.html',
+    'style.css',
+    'app.js'
 ];
 
 self.addEventListener('install', (event) => {
