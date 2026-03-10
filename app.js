@@ -3,7 +3,7 @@ import './style.css';
 const FY2025 = {
     central: { special_closed: ['2025-09-25', '2025-09-26', '2025-09-27', '2025-09-28', '2025-09-29', '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03', '2025-10-04', '2025-10-05', '2025-10-06', '2025-10-07', '2026-01-04', '2026-01-21'] },
     yamanaka: { special_closed: ['2025-09-02', '2025-09-03', '2025-09-04', '2025-09-05', '2025-09-06', '2025-09-07', '2025-09-08', '2025-09-09', '2026-01-04', '2026-01-21', '2026-02-18', '2025-05-21', '2025-06-18', '2025-07-16'] },
-    neagari: { special_closed: ['2026-03-14', '2026-03-15'] },
+    neagari: { special_closed: ['2026-03-14', '2026-03-15'], special_open: ['2026-03-13'] },
     harue: { special_closed: ['2026-03-21'] },
     fukui_pref: {},
     awara: { special_closed: ['2026-02-24', '2026-02-25', '2026-02-26', '2026-02-27'] }
@@ -224,7 +224,15 @@ class App {
         LIBRARIES.forEach(lib => {
             const statusType = this.getLibraryStatus(lib, this.selectedDate);
             const isWeekend = this.selectedDate.getDay() === 0 || this.selectedDate.getDay() === 6 || this.isHoliday(this.selectedDate);
-            const hoursStr = isWeekend ? lib.hours.weekend : lib.hours.weekday;
+            let hoursStr = isWeekend ? lib.hours.weekend : lib.hours.weekday;
+
+            // Handle Neagari's seasonal weekend/holiday hours (June-Sep open until 18:00 instead of 17:00)
+            if (lib.id === 'neagari' && isWeekend) {
+                const month = this.selectedDate.getMonth() + 1;
+                if (month >= 6 && month <= 9) {
+                    hoursStr = '9:30 - 18:00';
+                }
+            }
 
             let statusText = '';
             let statusClass = '';
