@@ -289,19 +289,27 @@ html, body {
 
 /* レスポンシブ対応 (スマホ等) */
 @media (max-width: 768px) {
+    html, body {
+        height: auto;
+        overflow: visible;
+    }
+
     .edit-container {
         flex-direction: column;
+        height: auto;
     }
     
     .edit-sidebar {
         width: 100%;
         min-width: 100%;
-        height: 50vh;
+        height: auto;
+        overflow-y: visible;
         border-right: none;
         border-bottom: 2px solid var(--primary);
     }
     
     .edit-content {
-        height: 50vh;
+        height: 60vh;
+        min-height: 400px;
     }
 }
