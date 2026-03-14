@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="robots" content="noindex" />
+    <title>カレンダー編集 | Library Calendar</title>
+    <style>
+        body { background-color: #0f172a; margin: 0; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="edit-container">
+        <!-- 左側：操作ペイン -->
+        <div class="edit-sidebar">
+            <header>
+                <h1>カレンダー編集</h1>
+                <a href="index.html" class="back-link">← 戻る</a>
+            </header>
+
+            <div class="edit-controls">
+                <select id="library-select" class="glass-select"></select>
+
+                <div class="month-selector">
+                    <button id="prev-month" class="glass-btn">◀</button>
+                    <span id="current-month-display">2026年 3月</span>
+                    <button id="next-month" class="glass-btn">▶</button>
+                </div>
+            </div>
+
+            <!-- カレンダーUI -->
+            <div class="calendar-grid">
+                <div class="day-header sun">日</div>
+                <div class="day-header">月</div>
+                <div class="day-header">火</div>
+                <div class="day-header">水</div>
+                <div class="day-header">木</div>
+                <div class="day-header">金</div>
+                <div class="day-header sat">土</div>
+            </div>
+            <div id="calendar-body" class="calendar-grid calendar-days">
+                <!-- JavaScriptでセルを生成 -->
+            </div>
+
+            <div class="export-section">
+                <button id="export-json-btn" class="primary-btn">変更をJSONでコピー</button>
+                <div id="export-msg" class="export-msg"></div>
+            </div>
+        </div>
+
+        <!-- 右側：参照ペイン -->
+        <div class="edit-content">
+            <div class="iframe-header">
+                <h3>公式情報参照</h3>
+                <a id="external-link" href="#" target="_blank" rel="noopener noreferrer">別タブで開く</a>
+            </div>
+            <div id="iframe-fallback" class="iframe-fallback" style="display: none;">
+                <div class="fallback-message">
+                    <span style="font-size: 3rem;">🔗</span>
+                    <h4>サイトの埋め込み表示が制限されています</h4>
+                    <p>セキュリティ上の理由により、この図書館のサイトは画面内に表示できません。<br>以下のボタンからカレンダーを確認してください。</p>
+                    <a id="fallback-link" href="#" target="_blank" class="primary-btn" style="text-decoration: none; display: inline-block; width: auto; padding: 10px 20px; margin-top: 15px;">別タブで開く</a>
+                </div>
+            </div>
+            <iframe id="reference-iframe" src="about:blank" title="公式カレンダー"></iframe>
+        </div>
+    </div>
+
+    <script type="module" src="edit.js"></script>
+</body>
+
+</html>
