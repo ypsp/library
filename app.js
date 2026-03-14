@@ -60,16 +60,22 @@ class App {
     }
 
     init() {
-        this.renderQuickLinks();
         this.updateView();
 
         const input = document.getElementById('date-input-hidden');
         input.addEventListener('change', (e) => {
             if (e.target.value) {
-                this.selectedDate = new Date(e.target.value);
+                // 'YYYY-MM-DD'文字列はUTC基準で解釈されるため、T00:00:00を付けてローカル時刻として解釈させる
+                this.selectedDate = new Date(e.target.value + 'T00:00:00');
                 this.updateView();
             }
         });
+    }
+
+    // タイムゾーンに依存しないローカル日付文字列(YYYY-MM-DD)を返す
+    // toISOString()はUTC変換するため、JST深夜帯に日付がズレるバグを防ぐ
+    toLocalDateStr(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
 
     getNthDayOfMonth(date) {
@@ -83,12 +89,12 @@ class App {
             '2026-01-01', '2026-01-12', '2026-02-11', '2026-02-23', '2026-03-20', '2026-04-29', '2026-05-03', '2026-05-04', '2026-05-05', '2026-05-06', '2026-07-20', '2026-08-11', '2026-09-21', '2026-09-22', '2026-09-23', '2026-10-12', '2026-11-03', '2026-11-23',
             '2027-01-01', '2027-01-11', '2027-02-11', '2027-02-23'
         ];
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = this.toLocalDateStr(date);
         return holidays.includes(dateStr);
     }
 
     getLibraryStatus(library, date) {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = this.toLocalDateStr(date);
         const monthDay = dateStr.substring(5);
         const dayOfWeek = date.getDay();
         const holiday = this.isHoliday(date);
@@ -274,7 +280,7 @@ class App {
             card.innerHTML = `
                 <div class="library-info">
                     <h2>${lib.name}</h2>
-                    <div class="library-hours">${statusType === 'open' ? hoursStr : '本日は休館です'}</div>
+                    <div class="library-hours">${statusType === 'open' ? hoursStr : '休館日です'}</div>
                 </div>
                 <div class="status-badge ${statusClass}">
                     ${statusText}

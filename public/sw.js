@@ -1,11 +1,9 @@
 const CACHE_NAME = 'library-calendar-v3';
 
-// Static assets that we know exist and want to cache immediately
+// Viteビルド後のJSやCSSにはハッシュ値が付くため、ルートのみプリキャッシュする。
+// ハッシュ付きアセットはランタイムキャッシュ(stale-while-revalidate)が自動的に処理する。
 const PRE_CACHE_ASSETS = [
-    './',
-    'index.html',
-    'style.css',
-    'app.js'
+    './'
 ];
 
 self.addEventListener('install', (event) => {
