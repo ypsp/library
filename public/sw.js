@@ -52,16 +52,19 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // HTML、JSON等は内容が変わる可能性があるため、Network First 戦略を取る。
-    // （常に最新のファイルを取りに行き、オフライン時のみキャッシュを返す）
+    // HTML、JSON等は内容が変わる可能性がある。
+    // Stale-While-Revalidate 戦略を取る（キャッシュがあれば即座に返し、バックグラウンドで更新）
+    // これにより、電波が弱い環境でも起動や画面遷移が一瞬で完了するようになる。
     event.respondWith(
-        fetch(event.request).then((networkResponse) => {
-            const cloned = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
-            return networkResponse;
-        }).catch(async () => {
-            const cachedResponse = await caches.match(event.request);
-            return cachedResponse;
+        caches.match(event.request).then((cachedResponse) => {
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
+                const cloned = networkResponse.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
+                return networkResponse;
+            }).catch(() => {
+                // ネットワークエラー時は何もしない（キャッシュがあればそれが返されている）
+            });
+            return cachedResponse || fetchPromise;
         })
     );
 });
