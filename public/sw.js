@@ -1,4 +1,4 @@
-const CACHE_NAME = 'library-calendar-v4';
+const CACHE_NAME = 'library-calendar-v5';
 
 const PRE_CACHE_ASSETS = [
     './',
@@ -12,7 +12,6 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            // リソースがない場合でもエラーで止まらないように catch を追加
             return cache.addAll(PRE_CACHE_ASSETS).catch(console.error);
         })
     );
@@ -34,14 +33,26 @@ self.addEventListener('fetch', (event) => {
 
     if (event.request.method !== 'GET' || !url.protocol.startsWith('http')) return;
 
-    // Viteのビルド済みアセット (/assets/配下) はファイル名にハッシュが含まれるため、不変。
-    // そのため Cache First (キャッシュがあれば即返す、なければ取りに行く) 戦略を取る
+    // Google Fonts などの外部リソース
+    if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                if (cachedResponse) return cachedResponse;
+                return fetch(event.request).then((networkResponse) => {
+                    const cloned = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
+                    return networkResponse;
+                });
+            })
+        );
+        return;
+    }
+
+    // Viteのビルド済みアセット (/assets/配下)
     if (url.pathname.includes('/assets/')) {
         event.respondWith(
             caches.match(event.request).then((cachedResponse) => {
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
+                if (cachedResponse) return cachedResponse;
                 return fetch(event.request).then((networkResponse) => {
                     const cloned = networkResponse.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
@@ -52,18 +63,14 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // HTML、JSON等は内容が変わる可能性がある。
-    // Stale-While-Revalidate 戦略を取る（キャッシュがあれば即座に返し、バックグラウンドで更新）
-    // これにより、電波が弱い環境でも起動や画面遷移が一瞬で完了するようになる。
+    // HTML、JSON等 (Stale-While-Revalidate)
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             const fetchPromise = fetch(event.request).then((networkResponse) => {
                 const cloned = networkResponse.clone();
                 caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
                 return networkResponse;
-            }).catch(() => {
-                // ネットワークエラー時は何もしない（キャッシュがあればそれが返されている）
-            });
+            }).catch(() => {});
             return cachedResponse || fetchPromise;
         })
     );
