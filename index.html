@@ -14,9 +14,38 @@
     <title>Library Calendar | 図書館開館状況</title>
     <style>
         /* CSSが読み込まれる前に背景をセットして真っ白を回避 */
+        :root {
+            --bg-deep: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+        }
         body {
-            background-color: #0f172a;
+            background-color: var(--bg-deep);
             margin: 0;
+            color: #f8fafc;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: env(safe-area-inset-top) 20px 40px;
+        }
+        /* スケルトンUI用 */
+        .skeleton-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .skeleton-card {
+            height: 90px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0.4; }
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,25 +58,37 @@
 <body>
     <div class="container">
         <header>
-            <h1>図書館カレンダー</h1>
+            <h1 style="margin: 32px 0 24px; font-size: 1.8rem; font-weight: 700; color: #f8fafc;">図書館カレンダー</h1>
         </header>
 
         <div class="calendar-trigger" id="datepicker-btn">
             <span>📅</span>
-            <span id="selected-date-display">日付を選択</span>
+            <span id="selected-date-display">読み込み中...</span>
             <input type="date" id="date-input-hidden">
         </div>
 
         <div class="date-selector" id="quick-links">
-            <!-- Dynamic quick links like "Today", "Tomorrow" -->
+            <!-- Loading placeholders -->
+            <div style="display: flex; gap: 8px;">
+                <div style="height: 48px; flex: 1; background: var(--card-bg); border-radius: 12px;"></div>
+                <div style="height: 48px; flex: 1; background: var(--card-bg); border-radius: 12px;"></div>
+                <div style="height: 48px; flex: 1; background: var(--card-bg); border-radius: 12px;"></div>
+            </div>
         </div>
 
         <div class="library-list" id="library-list">
-            <!-- Library cards will be injected here -->
+            <!-- スケルトンUI: JSが実行されるまでのプレースホルダー -->
+            <div class="skeleton-list">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
         </div>
 
         <div style="text-align: right; margin-top: 20px;">
-            <a href="edit.html" style="text-decoration: none; color: var(--text-muted); font-size: 1.2rem; opacity: 0.5; transition: opacity 0.2s;" title="カレンダー編集">⚙️</a>
+            <a href="edit.html" style="text-decoration: none; color: #64748b; font-size: 1.2rem; opacity: 0.5; transition: opacity 0.2s;" title="カレンダー編集">⚙️</a>
         </div>
     </div>
 
