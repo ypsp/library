@@ -1,11 +1,13 @@
-const CACHE_NAME = 'library-calendar-v5';
+const CACHE_NAME = 'library-calendar-v6';
 
 const PRE_CACHE_ASSETS = [
     './',
     './index.html',
     './edit.html',
     './data.json',
-    './manifest.webmanifest'
+    './manifest.webmanifest',
+    './icon-192.png',
+    './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
