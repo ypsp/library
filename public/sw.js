@@ -1,4 +1,4 @@
-const CACHE_NAME = 'library-calendar-v8';
+const CACHE_NAME = 'library-calendar-v9';
 
 const PRE_CACHE_ASSETS = [
     './',
@@ -7,7 +7,14 @@ const PRE_CACHE_ASSETS = [
     './data.json',
     './manifest.webmanifest',
     './icon-192.png',
-    './icon-512.png'
+    './icon-512.png',
+    './splash-1290x2796.png',
+    './splash-1179x2556.png',
+    './splash-1284x2778.png',
+    './splash-1170x2532.png',
+    './splash-1125x2436.png',
+    './splash-828x1792.png',
+    './splash-750x1334.png'
 ];
 
 self.addEventListener('install', (event) => {
