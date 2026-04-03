@@ -1,4 +1,4 @@
-const CACHE_NAME = 'library-calendar-v7';
+const CACHE_NAME = 'library-calendar-v8';
 
 const PRE_CACHE_ASSETS = [
     './',

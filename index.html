@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" style="background-color: #0f172a;">
 
 <head>
     <meta charset="UTF-8">
@@ -13,21 +13,26 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <title>Library Calendar | 図書館開館状況</title>
     <style>
-        /* CSSが読み込まれる前に背景をセットして真っ白を回避 */
-        :root {
-            --bg-deep: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
+        /* 即座に背景色を適用して白い画面を回避 */
+        html, body {
+            background-color: #0f172a;
+            margin: 0;
+            padding: 0;
         }
         body {
-            background-color: var(--bg-deep);
-            margin: 0;
             color: #f8fafc;
-            font-family: 'Noto Sans JP', sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
             padding: env(safe-area-inset-top) 20px 40px;
+            padding-top: max(env(safe-area-inset-top), 12px);
         }
         /* スケルトンUI用 */
         .skeleton-list {
@@ -37,15 +42,25 @@
             margin-top: 24px;
         }
         .skeleton-card {
-            height: 90px;
-            background: var(--card-bg);
-            border-radius: 16px;
+            height: 64px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
             animation: pulse 1.5s infinite ease-in-out;
         }
         @keyframes pulse {
             0% { opacity: 0.4; }
             50% { opacity: 0.7; }
             100% { opacity: 0.4; }
+        }
+        #quick-links > div {
+            display: flex;
+            gap: 8px;
+        }
+        #quick-links > div > div {
+            height: 48px;
+            flex: 1;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 14px;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
