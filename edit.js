@@ -2,14 +2,24 @@ import './style.css';
 import './edit.css';
 import libraryData from './data.json';
 
-// 深いコピーで編集用データを保持（オリジナルのdata.json構造を維持する）
-let editData = JSON.parse(JSON.stringify(libraryData));
+const STORAGE_KEY = 'lib_calendar_storage';
+
+// localStorageから取得、なければdata.jsonを使用
+let editData;
+try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    editData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(libraryData));
+} catch (e) {
+    console.error('Failed to load from localStorage', e);
+    editData = JSON.parse(JSON.stringify(libraryData));
+}
 
 class EditApp {
     constructor() {
         this.currentDate = new Date();
         this.currentDate.setDate(1); // 月の1日に固定
         this.currentLibraryId = editData.libraries[0].id;
+        this.resetStep = 0;
         
         this.init();
     }
@@ -44,6 +54,42 @@ class EditApp {
         });
 
         document.getElementById('export-json-btn').addEventListener('click', () => this.exportJson());
+        document.getElementById('reset-data-btn').addEventListener('click', (e) => this.resetData(e));
+    }
+
+    saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(editData));
+    }
+
+    resetData(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        const btn = document.getElementById('reset-data-btn');
+        
+        if (!this.resetStep) {
+            this.resetStep = 1;
+            btn.innerHTML = '<span style="margin-right: 5px;">⚠</span>本当に実行しますか？（もう一度クリック）';
+            btn.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
+            btn.style.borderColor = '#ef4444';
+            
+            // 5秒後に元に戻す
+            setTimeout(() => {
+                if (this.resetStep === 1) {
+                    this.resetStep = 0;
+                    btn.innerHTML = '<span style="margin-right: 5px;">⚠</span>すべての変更を破棄して初期化';
+                    btn.style.backgroundColor = '';
+                    btn.style.borderColor = 'rgba(248, 113, 113, 0.2)';
+                }
+            }, 5000);
+            return;
+        }
+
+        // 2回目のクリック：実行
+        localStorage.removeItem(STORAGE_KEY);
+        window.location.href = window.location.pathname + '?t=' + Date.now();
     }
 
     getCurrentLibrary() {
@@ -183,6 +229,7 @@ class EditApp {
             }
         }
 
+        this.saveData();
         this.updateView();
     }
 

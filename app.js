@@ -2,7 +2,20 @@ import './style.css';
 import libraryData from './data.json';
 
 // data.json からデータを取得
-const { FY2025, FY2026, libraries: LIBRARIES, holidays } = libraryData;
+const STORAGE_KEY = 'lib_calendar_storage';
+let currentData = libraryData;
+
+try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        currentData = JSON.parse(saved);
+        console.log('Loaded from localStorage');
+    }
+} catch (e) {
+    console.error('Failed to load from localStorage', e);
+}
+
+const { FY2025, FY2026, libraries: LIBRARIES, holidays } = currentData;
 
 
 class App {
@@ -11,10 +24,31 @@ class App {
         this.init();
     }
 
+    // 別のタブ（編集画面など）でlocalStorageが変更された場合に同期する
+    listenStorage() {
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY) {
+                location.reload(); // データが変わったら再読み込みして反映
+            }
+        });
+    }
+
     init() {
+        this.listenStorage();
         this.updateView();
 
+        const btn = document.getElementById('datepicker-btn');
         const input = document.getElementById('date-input-hidden');
+        
+        // ボタンをクリックしたら隠しインプットを起動
+        btn.addEventListener('click', () => {
+            if ('showPicker' in input) {
+                input.showPicker();
+            } else {
+                input.click();
+            }
+        });
+
         input.addEventListener('change', (e) => {
             if (e.target.value) {
                 // 'YYYY-MM-DD'文字列はUTC基準で解釈されるため、T00:00:00を付けてローカル時刻として解釈させる
