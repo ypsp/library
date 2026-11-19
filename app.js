@@ -15,7 +15,7 @@ try {
     console.error('Failed to load from localStorage', e);
 }
 
-const { FY2025, FY2026, libraries: LIBRARIES, holidays } = currentData;
+const { libraries: LIBRARIES, holidays } = currentData;
 
 
 class App {
@@ -73,20 +73,22 @@ class App {
         return holidays.includes(dateStr);
     }
 
+    getFiscalYearKey(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const fy = month >= 4 ? year : year - 1;
+        return `FY${fy}`;
+    }
+
     getLibraryStatus(library, date) {
         const dateStr = this.toLocalDateStr(date);
         const monthDay = dateStr.substring(5);
         const dayOfWeek = date.getDay();
         const holiday = this.isHoliday(date);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
 
-        // 1. New Year
-        if (library.rules.new_year_closed.includes(monthDay)) return 'closed';
-
-        // 2. Fiscal Year specific rules (Maintenance, etc.)
-        const isFY2025 = (year === 2025 && month >= 4) || (year === 2026 && month <= 3);
-        const fiscalRules = isFY2025 ? FY2025[library.id] : FY2026[library.id];
+        // 1. Fiscal Year specific rules (special_open / special_closed / Maintenance, etc.)
+        const fyKey = this.getFiscalYearKey(date);
+        const fiscalRules = currentData[fyKey]?.[library.id];
 
         if (fiscalRules) {
             if (fiscalRules.special_open && fiscalRules.special_open.includes(dateStr)) return 'open';
@@ -94,6 +96,9 @@ class App {
             if (fiscalRules.third_wed && fiscalRules.third_wed.includes(dateStr)) return 'closed';
             if (fiscalRules.third_tues && fiscalRules.third_tues.includes(dateStr)) return 'closed';
         }
+
+        // 2. New Year
+        if (library.rules.new_year_closed.includes(monthDay)) return 'closed';
 
         // 3. Holiday Shift Rule (Sakai / Fukui Pref Style)
         if (library.rules.holiday_shift) {

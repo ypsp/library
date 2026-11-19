@@ -110,20 +110,24 @@ class EditApp {
         return editData.holidays.includes(dateStr);
     }
 
+    getFiscalYearKey(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const fy = month >= 4 ? year : year - 1;
+        return `FY${fy}`;
+    }
+
     // そのライブラリの特定の日付のステータスと出処(source)を返す
     getLibraryStatusInfo(library, date) {
         const dateStr = this.toLocalDateStr(date);
         const monthDay = dateStr.substring(5);
         const dayOfWeek = date.getDay();
         const holiday = this.isHoliday(date);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
         
         // 1. 手動オーバーライド(FYデータの確認)
-        const isFY2025 = (year === 2025 && month >= 4) || (year === 2026 && month <= 3);
-        const fyKey = isFY2025 ? 'FY2025' : (year >= 2026 ? 'FY2026' : null);
+        const fyKey = this.getFiscalYearKey(date);
         
-        if (fyKey && editData[fyKey]?.[library.id]) {
+        if (editData[fyKey]?.[library.id]) {
             const rules = editData[fyKey][library.id];
             if (rules.special_open?.includes(dateStr)) return { status: 'open', source: 'special_open' };
             if (rules.special_closed?.includes(dateStr)) return { status: 'closed', source: 'special_closed' };
@@ -185,12 +189,7 @@ class EditApp {
         const lib = this.getCurrentLibrary();
         const dateStr = this.toLocalDateStr(date);
         const info = this.getLibraryStatusInfo(lib, date);
-        
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const isFY2025 = (year === 2025 && month >= 4) || (year === 2026 && month <= 3);
-        // 2026年度以降なら自動でFY2026に割り当て（必要に応じてFY2027なども拡張可能）
-        const fyKey = isFY2025 ? 'FY2025' : 'FY2026'; 
+        const fyKey = this.getFiscalYearKey(date);
 
         // 年度オブジェクトが存在しなければ作成
         if (!editData[fyKey]) editData[fyKey] = {};
